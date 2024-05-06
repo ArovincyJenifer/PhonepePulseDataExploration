@@ -10,12 +10,47 @@ Technologies Used:
 Workflow
 Step 1:
 Importing the Libraries: Need to import all the required modules using pip install --module name
+        import git
+        import subprocess
+        import os
+        import pandas as pd
+        import json
+        import streamlit as st
+        import plotly.express as pt
+        import plotly.graph_objects as go
 
 Step 2:
 Data Extraction:
 Clone the Github using scripting to fetch the data from the Phonepe pulse Github repository and store it in a suitable format such as JSON. Use the below syntax to clone the phonepe github repository into your local drive.
 
-Convert the Repository Data to Dataframe using Pandas
+Convert the Repository Data to Dataframe using Pandas Library:
+        path = "E:\\Phonepepulsedata\\data\\aggregated\\transaction\\country\\india\\state\\"
+    agg_transaction_state_list = os.listdir(path)
+    #print(agg_transaction_state_list)
+    aggregated_transaction_data = {"State":[],"Year":[],"Quater":[],"TransationType":[],"Total_number_Transactions":[],"Amount":[]}
+    for i in agg_transaction_state_list:
+        p_i = path+i+"\\"
+        agg_transaction_year = os.listdir(p_i)
+        for j in agg_transaction_year:
+            p_j = p_i+j+"\\"
+            agg_transaction_quarter = os.listdir(p_j)
+            for k in agg_transaction_quarter:
+                p_k = p_j+k
+                Data = open(p_k,'r')
+                D = json.load(Data)
+                for z in D['data']['transactionData']:
+                    name = z['name']
+                    count = z['paymentInstruments'][0]['count']
+                    amount = z['paymentInstruments'][0]['amount']
+                    aggregated_transaction_data['State'].append(i)
+                    aggregated_transaction_data['Year'].append(j)
+                    aggregated_transaction_data['Quater'].append(k.strip('.json'))
+                    aggregated_transaction_data['TransationType'].append(name)
+                    aggregated_transaction_data['Total_number_Transactions'].append(count)
+                    aggregated_transaction_data['Amount'].append(amount)
+    return aggregated_transaction_data
+aggregated = aggregated_transaction()
+aggregated_transaction_data_df = pd.DataFrame(aggregated)
 
 Step 3:
 Data insertion into SQL.
